@@ -7,11 +7,10 @@
 const KM_EXEC = "/plugins/komari-agent/include/exec.php";
 const KM_STREAM = "/plugins/komari-agent/include/logstream.php";
 const KM_UPDATE_STREAM = "/plugins/komari-agent/include/updatestream.php";
+const KM_STATUS_STREAM = "/plugins/komari-agent/include/statusstream.php";
 var km_es = null;   // log viewer stream
 var km_ues = null;  // update popup stream
-
-function km_parse(r){ return (typeof r === 'string') ? JSON.parse(r) : r; }
-function km_msg(r){ try{ var d = km_parse(r); return (d && d.msg != null) ? d.msg : String(r); }catch(e){ return String(r); } }
+var km_ss = null;   // status stream
 
 // translate a UI string via the map the page injected (English key, fallback to key)
 function kt(s){ return (window.KM_I18N && KM_I18N[s] != null) ? KM_I18N[s] : s; }
@@ -25,7 +24,11 @@ function km_set_status(txt){
   $('#km_btn_start').prop('disabled', running);
   $('#km_btn_stop').prop('disabled', !running);
 }
-function km_refresh(){ $.post(KM_EXEC, {action:'status'}, function(r){ km_set_status(km_msg(r)); }); }
+function km_status_connect(){
+  if(km_ss) return;
+  km_ss = new EventSource(KM_STATUS_STREAM);
+  km_ss.onmessage = function(e){ km_set_status(e.data); };
+}
 
 // lightweight feedback dialog — Unraid bundles SweetAlert as the global `swal`
 function km_notify(title, msg, type){
@@ -55,12 +58,12 @@ function km_post(action){
       data[k] = $('[name="'+k+'"]').is(':checked') ? 'yes' : 'no';
     });
   }
-  $.post(KM_EXEC, data, function(){
+  $.post(KM_EXEC, data).done(function(){
     if(action === 'save' && typeof swal === 'function'){
       swal({ title: kt('Saved'), type: 'success', timer: 1200, showConfirmButton: false });
     }
-    km_refresh();
-  });
+    km_status_connect();
+  }).fail(function(){ km_notify(kt('Error'), kt('Action failed. Check your connection.'), 'error'); });
 }
 
 // Check Update: live-streaming popup like Unraid's plugin-install dialog
@@ -70,7 +73,7 @@ function km_update(){
     text: "<pre id='km_swaltext'></pre>",
     html: true, animation: 'none',
     showConfirmButton: true, confirmButtonText: kt('Close')
-  }, function(){ if(km_ues){ km_ues.close(); km_ues = null; } km_refresh(); });
+  }, function(){ if(km_ues){ km_ues.close(); km_ues = null; } km_status_connect(); });
 
   var pre = document.getElementById('km_swaltext');
   if(pre){ pre.textContent = ''; }
@@ -84,7 +87,7 @@ function km_update(){
   km_ues.addEventListener('done', function(){
     km_ues.close(); km_ues = null;
     $('#km_upspin').removeClass('fa-refresh fa-spin').addClass('fa-check');
-    km_refresh();
+    km_status_connect();
   });
   km_ues.onerror = function(){ if(km_ues){ km_ues.close(); km_ues = null; } $('#km_upspin').removeClass('fa-refresh fa-spin'); };
 }
@@ -138,7 +141,6 @@ $(function(){
   $('[name="CONN_MODE"]').change(km_mode);
 
   km_place_status();
-  km_refresh();
-  setInterval(km_refresh, 10000);
+  km_status_connect();
 });
-window.addEventListener('beforeunload', function(){ if(km_es){ km_es.close(); } if(km_ues){ km_ues.close(); } });
+window.addEventListener('beforeunload', function(){ if(km_es){ km_es.close(); } if(km_ues){ km_ues.close(); } if(km_ss){ km_ss.close(); } });

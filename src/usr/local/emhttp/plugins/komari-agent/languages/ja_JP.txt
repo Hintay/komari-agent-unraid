@@ -40,6 +40,8 @@ Advanced view=詳細表示
 Basic view=基本表示
 
 # Messages
+Error=エラー
+Action failed. Check your connection.=操作に失敗しました。接続を確認してください。
 Saved=保存しました
 Done=完了
 Cannot save=保存できません

@@ -34,6 +34,6 @@
 
 /* Check Update popup: streamed command output inside the SweetAlert dialog */
 #km_swaltext {
-  text-align: left; margin: 0; max-height: 300px; overflow: auto;
+  text-align: left; margin: 0; min-height: 120px; max-height: 300px; overflow: auto;
   white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.5;
 }
