@@ -7,11 +7,17 @@ Markdown="false"
 require_once "/usr/local/emhttp/plugins/komari-agent/include/Helpers.php";
 $cfg = array_merge([
   'ENABLED'=>'no','ENDPOINT'=>'','CONN_MODE'=>'token','TOKEN'=>'','AD_KEY'=>'',
-  'DISABLE_WEB_SSH'=>'no','AUTO_UPDATE'=>'yes','INTERVAL'=>'1.0','IGNORE_UNSAFE_CERT'=>'no',
+  'DISABLE_WEB_SSH'=>'no','AUTO_UPDATE'=>'yes','GPU'=>'no','NIC_FILTER'=>'','FILTER_NICS'=>'',
+  'INTERVAL'=>'1.0','IGNORE_UNSAFE_CERT'=>'no',
   'EXTRA_ARGS'=>'','VERSION'=>'latest','GHPROXY'=>''
 ], km_cfg_load());
 $ck = function($v){ return $v === 'yes' ? 'checked' : ''; };
 function km_h($v){ return htmlspecialchars($v); }
+$nics = array_values(array_diff(scandir('/sys/class/net'), ['.','..']));
+sort($nics);
+$filterNics = array_filter(explode(',', $cfg['FILTER_NICS']));
+$nicState = [];
+foreach ($nics as $n) { $nicState[$n] = trim(@file_get_contents("/sys/class/net/$n/operstate") ?: 'unknown'); }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/komari-agent/komari-agent.css')?>">
@@ -46,6 +52,14 @@ function km_h($v){ return htmlspecialchars($v); }
 
 <!-- advanced view: whole block flies in/out via $('.km-adv').toggle('slow'), like VM Manager -->
 <div class="km-adv">
+<dl><dt><?=km_ht('GPU monitoring')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="GPU" value="yes" <?=$ck($cfg['GPU'])?>></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Enable detailed GPU monitoring (usage, memory, multi-GPU).')?></blockquote>
+
+<dl><dt><?=km_ht('NIC filter')?>:</dt><dd><select name="NIC_FILTER"><option value="" <?=$cfg['NIC_FILTER']===''?'selected':''?>><?=km_ht('All')?></option><option value="exclude" <?=$cfg['NIC_FILTER']==='exclude'?'selected':''?>><?=km_ht('Exclude')?></option><option value="include" <?=$cfg['NIC_FILTER']==='include'?'selected':''?>><?=km_ht('Include')?></option></select></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Filter which network interfaces are monitored.')?></blockquote>
+
+<dl class="km-nics-row"><dt>&nbsp;</dt><dd class="km-nics"><?php foreach($nics as $nic): ?><label class="km-nic-tag" title="<?=km_h($nicState[$nic])?>"><input type="checkbox" name="nic_<?=km_h($nic)?>" value="<?=km_h($nic)?>" <?=in_array($nic,$filterNics)?'checked':''?>><span class="km-nic-dot <?=$nicState[$nic]==='up'?'km-up':'km-down'?>"></span><?=km_h($nic)?></label><?php endforeach; ?><span class="km-nic-actions"><a href="#" onclick="$('.km-nics input').prop('checked',true);return false"><?=km_ht('Select all')?></a> <a href="#" onclick="$('.km-nics input').prop('checked',false);return false"><?=km_ht('Clear')?></a></span></dd></dl>
+
 <dl><dt><?=km_ht('Report interval (s)')?>:</dt><dd><input type="text" name="INTERVAL" value="<?=km_h($cfg['INTERVAL'])?>"></dd></dl>
 <blockquote class="inline_help"><?=km_ht('Seconds between metric reports.')?></blockquote>
 

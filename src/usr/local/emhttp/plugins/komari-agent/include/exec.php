@@ -13,8 +13,8 @@ $action = $_POST['action'] ?? '';
 switch ($action) {
   case 'save':
     $keys = ['ENABLED','ENDPOINT','CONN_MODE','TOKEN','AD_KEY','DISABLE_WEB_SSH','AUTO_UPDATE',
-             'INTERVAL','IGNORE_UNSAFE_CERT','EXTRA_ARGS','VERSION','GHPROXY'];
-    $boolKeys = ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE'];
+             'GPU','NIC_FILTER','FILTER_NICS','INTERVAL','IGNORE_UNSAFE_CERT','EXTRA_ARGS','VERSION','GHPROXY'];
+    $boolKeys = ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE','GPU'];
     $cfg = km_cfg_load();
     foreach ($keys as $k) {
       if (in_array($k, $boolKeys, true)) continue;

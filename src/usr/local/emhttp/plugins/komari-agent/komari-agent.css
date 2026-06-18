@@ -13,6 +13,23 @@
 /* native dd is flex-column; keep a switch and its on/off label side by side */
 #km_form dd.km-sw { flex-direction: row; align-items: center; }
 
+/* NIC filter: tag-style chips with status dot */
+#km_form dd.km-nics { flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: center; }
+.km-nic-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+  border: 1px solid var(--border-color, #ccc); background: var(--body-background, #fff);
+  font-family: monospace; font-size: 0.9em;
+}
+.km-nic-tag:hover { border-color: var(--header-text-color, #666); }
+.km-nic-tag:has(input:checked) { background: var(--header-gradient-to, #e0e0e0); border-color: var(--header-text-color, #888); }
+.km-nic-tag input { margin: 0; }
+.km-nic-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.km-nic-dot.km-up { background: var(--success-color, #1c7c1c); }
+.km-nic-dot.km-down { background: var(--grey-text, #999); }
+.km-nic-actions { margin-left: 4px; font-size: 0.85em; }
+.km-nic-actions a { margin: 0 2px; }
+
 /* Check Update sits under its field as a horizontal row */
 #km_form dd.km-buttons { flex-direction: row; flex-wrap: wrap; gap: 8px; }
 

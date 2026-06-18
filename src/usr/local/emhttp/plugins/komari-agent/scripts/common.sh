@@ -76,6 +76,11 @@ km_agent_args() {
   [ "${DISABLE_WEB_SSH:-}" = "yes" ] && _a="$_a --disable-web-ssh"
   [ -n "${INTERVAL:-}" ] && _a="$_a -i ${INTERVAL}"
   [ "${IGNORE_UNSAFE_CERT:-}" = "yes" ] && _a="$_a -u"
+  [ "${GPU:-}" = "yes" ] && _a="$_a --gpu"
+  if [ -n "${FILTER_NICS:-}" ]; then
+    if [ "${NIC_FILTER:-}" = "include" ]; then _a="$_a --include-nics ${FILTER_NICS}"
+    elif [ "${NIC_FILTER:-}" = "exclude" ]; then _a="$_a --exclude-nics ${FILTER_NICS}"; fi
+  fi
   [ -n "${EXTRA_ARGS:-}" ] && _a="$_a ${EXTRA_ARGS}"
   echo "$_a"
 }

@@ -46,12 +46,15 @@ function km_save(){
       km_notify(kt('Cannot save'), need, 'error'); return;
     }
   }
-  ['ENDPOINT','CONN_MODE','TOKEN','AD_KEY','INTERVAL','EXTRA_ARGS','VERSION','GHPROXY'].forEach(function(k){
+  ['ENDPOINT','CONN_MODE','TOKEN','AD_KEY','NIC_FILTER','INTERVAL','EXTRA_ARGS','VERSION','GHPROXY'].forEach(function(k){
     data[k] = $('[name="'+k+'"]').val();
   });
-  ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE'].forEach(function(k){
+  ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE','GPU'].forEach(function(k){
     data[k] = $('[name="'+k+'"]').is(':checked') ? 'yes' : 'no';
   });
+  var nics = [];
+  $('.km-nics input:checked').each(function(){ nics.push($(this).val()); });
+  data['FILTER_NICS'] = nics.join(',');
   $.post(KM_EXEC, data).done(function(){
     if(typeof swal === 'function'){
       swal({ title: kt('Saved'), type: 'success', timer: 1200, showConfirmButton: false });
@@ -134,10 +137,15 @@ $(function(){
   km_mode();
   $('[name="CONN_MODE"]').change(km_mode);
 
+  // NIC filter: show checkboxes only when exclude/include is selected
+  function km_nic_filter(){ $('dl.km-nics-row').toggle($('[name="NIC_FILTER"]').val() !== ''); }
+  km_nic_filter();
+  $('[name="NIC_FILTER"]').change(km_nic_filter);
+
   // show manual update button when auto-update is off
-  function km_auto_update(){ $('dl.km-manual-update').toggle(!$('[name="AUTO_UPDATE"]').is(':checked')); }
-  km_auto_update();
-  $('[name="AUTO_UPDATE"]').change(km_auto_update);
+  var au = $('[name="AUTO_UPDATE"]');
+  $('dl.km-manual-update').toggle(!au.is(':checked'));
+  au.change(function(){ $('dl.km-manual-update')[au.is(':checked')?'hide':'show']('slow'); });
 
   km_place_status();
   km_status_connect();
