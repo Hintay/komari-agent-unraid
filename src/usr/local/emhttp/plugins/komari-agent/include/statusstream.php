@@ -30,7 +30,7 @@ while (!connection_aborted()) {
     }
   }
 
-  $state = $running ? 'running' : 'stopped';
+  $state = $running ? "running ($pid)" : 'stopped';
   if ($state !== $last) {
     echo "data: $state\n\n";
     @flush();

@@ -17,7 +17,8 @@ function kt(s){ return (window.KM_I18N && KM_I18N[s] != null) ? KM_I18N[s] : s; 
 
 function km_set_status(txt){
   var running = /running/i.test(txt);
-  var disp = running ? kt('Running') : (/stop/i.test(txt) ? kt('Stopped') : kt(txt));
+  var pid = (txt.match(/\((\d+)\)/) || [])[1];
+  var disp = running ? kt('Running') + (pid ? ' (' + pid + ')' : '') : (/stop/i.test(txt) ? kt('Stopped') : kt(txt));
   var el = document.getElementById('km_status');
   if(el){ el.textContent = disp; el.className = running ? 'km-run' : 'km-stop'; }
 }
