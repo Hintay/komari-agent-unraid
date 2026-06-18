@@ -1,0 +1,3 @@
+#!/bin/sh
+# test mock: `uname -m` returns $MOCK_UNAME
+if [ "$1" = "-m" ]; then echo "${MOCK_UNAME:-x86_64}"; else /usr/bin/uname "$@"; fi

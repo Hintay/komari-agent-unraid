@@ -1,0 +1,22 @@
+#!/bin/sh
+# HEAD request (-I, e.g. -fsSI): emit a redirect Location carrying a version tag,
+# so fetch.sh can resolve the "latest" release tag without downloading a body.
+head=""
+for a in "$@"; do case "$a" in -*I*) head=1;; esac; done
+if [ -n "$head" ]; then
+  [ -n "$CURL_FAIL" ] && exit 1
+  echo "location: https://github.com/komari-monitor/komari-agent/releases/download/${MOCK_VERSION:-1.2.13}/komari-agent-linux-amd64"
+  exit 0
+fi
+
+out=""
+while [ $# -gt 0 ]; do case "$1" in -o) out="$2"; shift 2;; *) shift;; esac; done
+[ -n "$out" ] || exit 2
+[ -n "$CURL_FAIL" ] && exit 1
+if [ -n "$BAD" ]; then printf 'not-a-binary' > "$out"; exit 0; fi
+cat > "$out" <<'EOF'
+#!/bin/sh
+[ "$1" = "--help" ] && { echo "komari-agent (fake)"; exit 0; }
+exit 0
+EOF
+exit 0
