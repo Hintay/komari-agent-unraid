@@ -1,6 +1,6 @@
 <?php
 // AJAX action endpoint for the Komari Agent plugin.
-// POST: action=save|start|stop  (+ form fields for save)
+// POST: action=save  (+ form fields)
 require_once __DIR__ . '/Helpers.php';
 header('Content-Type: application/json');
 
@@ -27,16 +27,6 @@ switch ($action) {
     if ($cfg['ENABLED'] === 'yes') shell_exec(escapeshellarg($rc).' restart 2>&1');
     else                          shell_exec(escapeshellarg($rc).' stop 2>&1');
     out(true, 'saved');
-    break;
-
-  case 'start':
-    $cfg = km_cfg_load(); $cfg['ENABLED'] = 'yes'; km_cfg_save($cfg);
-    out(true, shell_exec(escapeshellarg($rc).' start 2>&1'));
-    break;
-
-  case 'stop':
-    $cfg = km_cfg_load(); $cfg['ENABLED'] = 'no'; km_cfg_save($cfg);
-    out(true, shell_exec(escapeshellarg($rc).' stop 2>&1'));
     break;
 
   default:

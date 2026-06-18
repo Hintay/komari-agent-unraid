@@ -20,8 +20,6 @@ Auto-discovery=自動検出
 
 # Buttons
 Save & Apply=保存して適用
-Start=開始
-Stop=停止
 View Log=ログを表示
 Hide Log=ログを隠す
 Check Update=更新を確認

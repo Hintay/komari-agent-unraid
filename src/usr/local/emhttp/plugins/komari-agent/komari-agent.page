@@ -62,7 +62,7 @@ function km_h($v){ return htmlspecialchars($v); }
 <dl><dt><?=km_ht('Update agent')?>:</dt><dd class="km-buttons"><input type="button" value="<?=km_h(km_t('Check Update'))?>" onclick="km_update()"></dd></dl>
 </div>
 
-<div class="km-actions"><input type="button" value="<?=km_h(km_t('Save & Apply'))?>" onclick="km_post('save')"><input type="button" id="km_btn_start" value="<?=km_h(km_t('Start'))?>" onclick="km_post('start')"><input type="button" id="km_btn_stop" value="<?=km_h(km_t('Stop'))?>" onclick="km_post('stop')"><input type="button" id="km_btn_log" value="<?=km_h(km_t('View Log'))?>" onclick="km_log()"></div>
+<div class="km-actions"><input type="button" value="<?=km_h(km_t('Save & Apply'))?>" onclick="km_save()"><input type="button" id="km_btn_log" value="<?=km_h(km_t('View Log'))?>" onclick="km_log()"></div>
 </form>
 
 <pre id="km_logbox" style="display:none"></pre>

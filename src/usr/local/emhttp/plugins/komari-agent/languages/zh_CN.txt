@@ -20,8 +20,6 @@ Auto-discovery=自动发现
 
 # Buttons
 Save & Apply=保存并应用
-Start=启动
-Stop=停止
 View Log=查看日志
 Hide Log=隐藏日志
 Check Update=检查更新

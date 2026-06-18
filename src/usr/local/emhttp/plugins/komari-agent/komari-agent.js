@@ -20,9 +20,6 @@ function km_set_status(txt){
   var disp = running ? kt('Running') : (/stop/i.test(txt) ? kt('Stopped') : kt(txt));
   var el = document.getElementById('km_status');
   if(el){ el.textContent = disp; el.className = running ? 'km-run' : 'km-stop'; }
-  // Start/Stop track the running state
-  $('#km_btn_start').prop('disabled', running);
-  $('#km_btn_stop').prop('disabled', !running);
 }
 function km_status_connect(){
   if(km_ss) return;
@@ -36,30 +33,26 @@ function km_notify(title, msg, type){
   else { alert(title + "\n\n" + msg); }
 }
 
-function km_post(action){
-  // read fields explicitly (switchButton wraps the checkboxes)
-  var data = {action: action};
-  if(action === 'save'){
-    // when enabled, the agent needs an endpoint and a token / discovery key
-    if($('[name="ENABLED"]').is(':checked')){
-      var ep = ($('[name="ENDPOINT"]').val() || '').trim();
-      var discovery = $('[name="CONN_MODE"]').val() === 'discovery';
-      var key = ($(discovery ? '[name="AD_KEY"]' : '[name="TOKEN"]').val() || '').trim();
-      if(!ep){ km_notify(kt('Cannot save'), kt('Panel endpoint is required when enabled.'), 'error'); return; }
-      if(!key){
-        var need = discovery ? kt('Auto-discovery key is required when enabled.') : kt('Token is required when enabled.');
-        km_notify(kt('Cannot save'), need, 'error'); return;
-      }
+function km_save(){
+  var data = {action: 'save'};
+  if($('[name="ENABLED"]').is(':checked')){
+    var ep = ($('[name="ENDPOINT"]').val() || '').trim();
+    var discovery = $('[name="CONN_MODE"]').val() === 'discovery';
+    var key = ($(discovery ? '[name="AD_KEY"]' : '[name="TOKEN"]').val() || '').trim();
+    if(!ep){ km_notify(kt('Cannot save'), kt('Panel endpoint is required when enabled.'), 'error'); return; }
+    if(!key){
+      var need = discovery ? kt('Auto-discovery key is required when enabled.') : kt('Token is required when enabled.');
+      km_notify(kt('Cannot save'), need, 'error'); return;
     }
-    ['ENDPOINT','CONN_MODE','TOKEN','AD_KEY','INTERVAL','EXTRA_ARGS','VERSION','GHPROXY'].forEach(function(k){
-      data[k] = $('[name="'+k+'"]').val();
-    });
-    ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE'].forEach(function(k){
-      data[k] = $('[name="'+k+'"]').is(':checked') ? 'yes' : 'no';
-    });
   }
+  ['ENDPOINT','CONN_MODE','TOKEN','AD_KEY','INTERVAL','EXTRA_ARGS','VERSION','GHPROXY'].forEach(function(k){
+    data[k] = $('[name="'+k+'"]').val();
+  });
+  ['ENABLED','DISABLE_WEB_SSH','IGNORE_UNSAFE_CERT','AUTO_UPDATE'].forEach(function(k){
+    data[k] = $('[name="'+k+'"]').is(':checked') ? 'yes' : 'no';
+  });
   $.post(KM_EXEC, data).done(function(){
-    if(action === 'save' && typeof swal === 'function'){
+    if(typeof swal === 'function'){
       swal({ title: kt('Saved'), type: 'success', timer: 1200, showConfirmButton: false });
     }
     km_status_connect();
