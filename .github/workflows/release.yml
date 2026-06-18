@@ -29,7 +29,7 @@ jobs:
             echo
             echo "---"
             echo
-            echo "Install via **Plugins -> Install Plugin** with the \`.plg\` URL (see README/INSTALL). The komari-agent binary is downloaded per-architecture (amd64/arm64/arm/386) at install time and cached on the USB flash."
+            echo "Install via **Plugins -> Install Plugin** with the \`.plg\` URL (see the README). The komari-agent binary is downloaded per-architecture (amd64/arm64/arm/386) at install time and cached on the USB flash."
           } > RELEASE_NOTES.md
 
       - name: Create release
