@@ -1,0 +1,5 @@
+build/
+*.txz
+*.txz.md5
+plugin/komari-agent.plg
+test/helpers/mockbin/_cache/
