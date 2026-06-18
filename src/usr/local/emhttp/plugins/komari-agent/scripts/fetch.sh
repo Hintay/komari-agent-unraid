@@ -46,7 +46,7 @@ if [ "$target" != latest ] && [ -s "$cache" ] && [ -f "$verfile" ] \
    && [ "$(cat "$verfile" 2>/dev/null)" = "$target" ]; then
   install -m 0755 "$cache" "$KM_BIN"
   log "already up to date (arch=$arch version=$target)"
-  exit 0
+  exit 2
 fi
 
 tmp="$(mktemp)"

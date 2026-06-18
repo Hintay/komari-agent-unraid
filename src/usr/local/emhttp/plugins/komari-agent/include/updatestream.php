@@ -1,6 +1,6 @@
 <?php
 // SSE endpoint for the UI "Check Update": runs fetch.sh (force) and, if the
-// agent is enabled, restarts it — streaming each output line to the browser so
+// agent is enabled, restarts it. Each output line is streamed to the browser so
 // the popup updates live (like Unraid's plugin-install dialog). Ends with a
 // named "done" event.
 require_once __DIR__ . '/Helpers.php';
@@ -22,12 +22,12 @@ function km_emit($data) {
   @flush();
 }
 
-// run a command, streaming combined stdout/stderr line by line; returns exit code
+// run a command, streaming combined stdout/stderr line by line; returns shell exit code
 function km_stream($cmd) {
   $p = popen($cmd . ' 2>&1', 'r');
   if (!is_resource($p)) { km_emit('(cannot run command)'); return 1; }
   while (($line = fgets($p)) !== false) { km_emit($line); }
-  return pclose($p);
+  return pclose($p) >> 8;
 }
 
 $cfg   = km_cfg_load();
@@ -36,9 +36,9 @@ $ghp   = $cfg['GHPROXY'] ?? '';
 $fetch = km_scripts_dir() . '/fetch.sh';
 $rc    = km_scripts_dir() . '/rc.komari-agent';
 
-km_stream(escapeshellarg($fetch) . ' ' . escapeshellarg($ver) . ' ' . escapeshellarg($ghp) . ' force');
+$exit = km_stream(escapeshellarg($fetch) . ' ' . escapeshellarg($ver) . ' ' . escapeshellarg($ghp) . ' force');
 
-if (($cfg['ENABLED'] ?? 'no') === 'yes') {
+if ($exit !== 2 && ($cfg['ENABLED'] ?? 'no') === 'yes') {
   km_emit('[rc] restarting agent');
   km_stream(escapeshellarg($rc) . ' restart');
 }

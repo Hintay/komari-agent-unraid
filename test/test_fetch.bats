@@ -43,7 +43,7 @@ seed_cache() {
   seed_cache
   echo "1.2.13" > "$KM_FLASH_DIR/komari-agent-linux-amd64.version"
   MOCK_UNAME=x86_64 MOCK_VERSION=1.2.13 run bash "$SCR/fetch.sh" latest "" force
-  [ "$status" -eq 0 ]
+  [ "$status" -eq 2 ]
   grep -q CACHED "$KM_BIN"                 # redeployed the cache, did NOT download
   echo "$output" | grep -qi "up to date"
 }
