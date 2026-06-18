@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install bats and xmllint
+        run: sudo apt-get update && sudo apt-get install -y bats libxml2-utils
+
+      - name: Run bats tests
+        run: bats test/
+
+      - name: Run PHP cross-language test
+        run: php test/php_helpers_test.php
+
+      - name: Check translation completeness
+        run: php test/i18n_test.php
+
+      - name: Shellcheck scripts
+        run: |
+          shellcheck -s bash \
+            src/usr/local/emhttp/plugins/komari-agent/scripts/common.sh \
+            src/usr/local/emhttp/plugins/komari-agent/scripts/fetch.sh \
+            src/usr/local/emhttp/plugins/komari-agent/scripts/rc.komari-agent \
+            src/usr/local/emhttp/plugins/komari-agent/scripts/watchdog.sh
+
+      - name: PHP lint
+        run: |
+          # lint every PHP source file so new ones are covered automatically
+          find src test -name '*.php' -print0 | xargs -0 -n1 php -l
+          # .page files carry an emhttp header before the PHP body — strip it first
+          for p in $(find src -name '*.page'); do
+            echo "lint (page body): $p"
+            awk 'f{print} /^---$/{f=1}' "$p" | php -l
+          done
+
+      - name: Build and validate plugin package
+        run: |
+          bash tools/build-plugin.sh 0.0.0-ci "${{ github.repository }}"
+          xmllint --noout plugin/komari-agent.plg

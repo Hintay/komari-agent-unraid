@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags: ['20[0-9][0-9].*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      - name: Build plugin package
+        run: |
+          bash tools/build-plugin.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY"
+          xmllint --noout plugin/komari-agent.plg
+
+      - name: Render release notes from CHANGELOG
+        run: |
+          {
+            # substitute the version placeholder and turn ###x### into a markdown heading
+            sed -E "s/@VERSION@/$GITHUB_REF_NAME/g; s/^###(.*)###$/## \1/" CHANGELOG.md
+            echo
+            echo "---"
+            echo
+            echo "Install via **Plugins -> Install Plugin** with the \`.plg\` URL (see README/INSTALL). The komari-agent binary is downloaded per-architecture (amd64/arm64/arm/386) at install time and cached on the USB flash."
+          } > RELEASE_NOTES.md
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            build/komari-agent.txz \
+            plugin/komari-agent.plg \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file RELEASE_NOTES.md
