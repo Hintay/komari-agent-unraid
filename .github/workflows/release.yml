@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Install xmllint
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
@@ -21,15 +23,24 @@ jobs:
           bash tools/build-plugin.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY"
           xmllint --noout plugin/komari-agent.plg
 
-      - name: Render release notes from CHANGELOG
+      - name: Generate release notes
         run: |
+          prev_tag=$(git tag --sort=-creatordate | grep -v "^${GITHUB_REF_NAME}$" | head -1)
+          if [ -n "$prev_tag" ]; then range="${prev_tag}..${GITHUB_REF_NAME}"; else range="${GITHUB_REF_NAME}"; fi
+          subs=$(git log --format='%s' --no-decorate $range)
+          ucfirst() { awk '{print "- " toupper(substr($0,1,1)) substr($0,2)}'; }
+          feat=$(echo "$subs" | grep -E '^feat(\(|:)' | sed 's/^feat[^:]*:[[:space:]]*//' | ucfirst || true)
+          fix=$(echo "$subs" | grep -E '^fix(\(|:)' | sed 's/^fix[^:]*:[[:space:]]*//' | ucfirst || true)
+          improve=$(echo "$subs" | grep -E '^(refactor|simplify|perf)(\(|:)' | sed 's/^[a-z]*[^:]*:[[:space:]]*//' | ucfirst || true)
+          other=$(echo "$subs" | grep -vE '^(feat|fix|refactor|simplify|perf|build|ci|test|docs|chore|style)(\(|:)' | ucfirst || true)
           {
-            # substitute the version placeholder and turn ###x### into a markdown heading
-            sed -E "s/@VERSION@/$GITHUB_REF_NAME/g; s/^###(.*)###$/## \1/" CHANGELOG.md
-            echo
+            [ -n "$feat" ] && printf '## New Features\n%s\n\n' "$feat"
+            [ -n "$fix" ] && printf '## Bug Fixes\n%s\n\n' "$fix"
+            [ -n "$improve" ] && printf '## Improvements\n%s\n\n' "$improve"
+            [ -n "$other" ] && printf '## Other\n%s\n\n' "$other"
             echo "---"
             echo
-            echo "Install via **Plugins -> Install Plugin** with the \`.plg\` URL (see the README). The komari-agent binary is downloaded per-architecture (amd64/arm64/arm/386) at install time and cached on the USB flash."
+            echo "Install via **Plugins -> Install Plugin** with the \`.plg\` URL (see the README)."
           } > RELEASE_NOTES.md
 
       - name: Create release
