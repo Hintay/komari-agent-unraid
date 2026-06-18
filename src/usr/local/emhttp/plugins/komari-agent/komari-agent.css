@@ -1,0 +1,39 @@
+/* Komari Agent plugin styles. External file so it is never touched by the
+   .page Markdown renderer. The form uses Unraid's native dl/dt/dd layout, so
+   the responsive label/field grid, the click-to-show inline_help and the input
+   sizing all come from Unraid's own stylesheet — we only add a few tweaks. */
+
+#km_statusbar { float: right; font-weight: bold; }
+#km_statusbar .km-run  { color: var(--success-color, #1c7c1c); }
+#km_statusbar .km-stop { color: var(--alert-color, #cc0000); }
+
+/* basic/advanced view switch, near the top */
+.km-viewtoggle { margin: 0 0 10px; }
+
+/* native dd is flex-column; keep a switch and its on/off label side by side */
+#km_form dd.km-sw { flex-direction: row; align-items: center; }
+
+/* Check Update sits under its field as a horizontal row */
+#km_form dd.km-buttons { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+
+/* main action buttons: centered horizontal row */
+#km_form .km-actions { display: flex; flex-flow: row wrap; gap: 8px; justify-content: center; margin-top: 1rem; clear: both; }
+
+/* Unraid forces form inputs to full width; keep buttons at their natural size */
+#km_form .km-buttons input[type=button],
+#km_form .km-actions input[type=button] {
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+/* live log: plain native <pre> (themed border, no forced colors), like the
+   btrfs scrub status box in VM Manager — just cap the height and let it scroll. */
+#km_logbox { clear: both; margin-top: 12px; max-height: 320px; }
+
+/* Check Update popup: streamed command output inside the SweetAlert dialog */
+#km_swaltext {
+  text-align: left; margin: 0; max-height: 300px; overflow: auto;
+  white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.5;
+}

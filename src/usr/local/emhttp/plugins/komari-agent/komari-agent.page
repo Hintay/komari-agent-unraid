@@ -1,0 +1,72 @@
+Menu="Utilities"
+Title="Komari Agent"
+Icon="komari-agent.png"
+Markdown="false"
+---
+<?php
+require_once "/usr/local/emhttp/plugins/komari-agent/include/Helpers.php";
+$cfg = array_merge([
+  'ENABLED'=>'no','ENDPOINT'=>'','CONN_MODE'=>'token','TOKEN'=>'','AD_KEY'=>'',
+  'DISABLE_WEB_SSH'=>'no','AUTO_UPDATE'=>'yes','INTERVAL'=>'1.0','IGNORE_UNSAFE_CERT'=>'no',
+  'EXTRA_ARGS'=>'','VERSION'=>'latest','GHPROXY'=>''
+], km_cfg_load());
+$ck = function($v){ return $v === 'yes' ? 'checked' : ''; };
+function km_h($v){ return htmlspecialchars($v); }
+?>
+<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
+<link type="text/css" rel="stylesheet" href="<?autov('/plugins/komari-agent/komari-agent.css')?>">
+
+<div id="km_statusbar"><?=km_ht('Status')?>: <span id="km_status">...</span></div>
+
+<form id="km_form">
+<div class="km-viewtoggle"><input type="checkbox" class="km-adv-toggle"></div>
+
+<dl><dt><?=km_ht('Enabled')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="ENABLED" value="yes" <?=$ck($cfg['ENABLED'])?>></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Auto-start on boot and restart on crash.')?></blockquote>
+
+<dl><dt><?=km_ht('Panel endpoint')?>:</dt><dd><input type="text" name="ENDPOINT" value="<?=km_h($cfg['ENDPOINT'])?>" placeholder="https://panel.example.com"></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Address of your Komari panel.')?></blockquote>
+
+<dl><dt><?=km_ht('Connection mode')?>:</dt><dd><select name="CONN_MODE"><option value="token" <?=$cfg['CONN_MODE']==='token'?'selected':''?>><?=km_ht('Token')?></option><option value="discovery" <?=$cfg['CONN_MODE']==='discovery'?'selected':''?>><?=km_ht('Auto-discovery')?></option></select></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Token: register one server with its token. Auto-discovery: register with a cluster key.')?></blockquote>
+
+<dl class="km-token"><dt><?=km_ht('Token')?>:</dt><dd><input type="password" name="TOKEN" value="<?=km_h($cfg['TOKEN'])?>"></dd></dl>
+<blockquote class="inline_help km-token"><?=km_ht('Per-server token from the panel.')?></blockquote>
+
+<dl class="km-ad"><dt><?=km_ht('Auto-discovery key')?>:</dt><dd><input type="password" name="AD_KEY" value="<?=km_h($cfg['AD_KEY'])?>"></dd></dl>
+<blockquote class="inline_help km-ad"><?=km_ht('Cluster auto-discovery key from the panel.')?></blockquote>
+
+<dl><dt><?=km_ht('Disable Web SSH/RCE')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="DISABLE_WEB_SSH" value="yes" <?=$ck($cfg['DISABLE_WEB_SSH'])?>></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Block the panel from opening a web shell or running commands on this host.')?></blockquote>
+
+<dl><dt><?=km_ht('Auto-update agent')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="AUTO_UPDATE" value="yes" <?=$ck($cfg['AUTO_UPDATE'])?>></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Let the agent update itself to new releases.')?></blockquote>
+
+<!-- advanced view: whole block flies in/out via $('.km-adv').toggle('slow'), like VM Manager -->
+<div class="km-adv">
+<dl><dt><?=km_ht('Report interval (s)')?>:</dt><dd><input type="text" name="INTERVAL" value="<?=km_h($cfg['INTERVAL'])?>"></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Seconds between metric reports.')?></blockquote>
+
+<dl><dt><?=km_ht('Ignore unsafe cert')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="IGNORE_UNSAFE_CERT" value="yes" <?=$ck($cfg['IGNORE_UNSAFE_CERT'])?>></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Skip TLS verification (for self-signed panel certificates).')?></blockquote>
+
+<dl><dt><?=km_ht('Extra args')?>:</dt><dd><input type="text" name="EXTRA_ARGS" value="<?=km_h($cfg['EXTRA_ARGS'])?>" placeholder="--exclude-nics lo,docker0"></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Extra command-line flags passed to the agent.')?></blockquote>
+
+<dl><dt><?=km_ht('Version')?>:</dt><dd><input type="text" name="VERSION" value="<?=km_h($cfg['VERSION'])?>" placeholder="latest or 1.2.13"></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Pin a version, or use latest.')?></blockquote>
+
+<dl><dt><?=km_ht('GitHub proxy')?>:</dt><dd><input type="text" name="GHPROXY" value="<?=km_h($cfg['GHPROXY'])?>" placeholder="https://ghproxy.com (optional)"></dd></dl>
+<blockquote class="inline_help"><?=km_ht('Optional GitHub mirror for binary downloads.')?></blockquote>
+
+<dl><dt><?=km_ht('Update agent')?>:</dt><dd class="km-buttons"><input type="button" value="<?=km_h(km_t('Check Update'))?>" onclick="km_update()"></dd></dl>
+</div>
+
+<div class="km-actions"><input type="button" value="<?=km_h(km_t('Save & Apply'))?>" onclick="km_post('save')"><input type="button" id="km_btn_start" value="<?=km_h(km_t('Start'))?>" onclick="km_post('start')"><input type="button" id="km_btn_stop" value="<?=km_h(km_t('Stop'))?>" onclick="km_post('stop')"><input type="button" id="km_btn_log" value="<?=km_h(km_t('View Log'))?>" onclick="km_log()"></div>
+</form>
+
+<pre id="km_logbox" style="display:none"></pre>
+
+<script>var KM_I18N = <?=json_encode((object)km_lang(), JSON_UNESCAPED_UNICODE)?>;</script>
+<script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
+<script src="<?autov('/plugins/komari-agent/komari-agent.js')?>"></script>

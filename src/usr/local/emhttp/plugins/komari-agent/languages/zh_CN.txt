@@ -1,0 +1,62 @@
+# Komari Agent - Simplified Chinese (zh_CN)
+# Format: English source text=translation. One per line; # starts a comment.
+# Keep the left side (English) exactly as-is; translate only the right side.
+
+# Labels
+Enabled=启用
+Panel endpoint=面板地址
+Connection mode=连接方式
+Token=令牌
+Auto-discovery key=自动发现密钥
+Disable Web SSH/RCE=禁用 Web SSH/RCE
+Auto-update agent=自动更新 Agent
+Report interval (s)=上报间隔(秒)
+Ignore unsafe cert=忽略不安全证书
+Extra args=附加参数
+Version=版本
+GitHub proxy=GitHub 代理
+Update agent=更新 Agent
+Auto-discovery=自动发现
+
+# Buttons
+Save & Apply=保存并应用
+Start=启动
+Stop=停止
+View Log=查看日志
+Hide Log=隐藏日志
+Check Update=检查更新
+Close=关闭
+
+# Status
+Status=状态
+Running=运行中
+Stopped=已停止
+Updating...=更新中…
+
+# Switch labels
+On=开
+Off=关
+Advanced view=高级视图
+Basic view=基本视图
+
+# Messages
+Saved=已保存
+Done=完成
+Cannot save=无法保存
+Panel endpoint is required when enabled.=启用时必须填写面板地址。
+Token is required when enabled.=启用时必须填写令牌。
+Auto-discovery key is required when enabled.=启用时必须填写自动发现密钥。
+
+# Help text
+Auto-start on boot and restart on crash.=开机自启,崩溃后自动重启。
+Address of your Komari panel.=你的 Komari 面板地址。
+Token: register one server with its token. Auto-discovery: register with a cluster key.=令牌:用服务器令牌注册单台。自动发现:用集群密钥注册。
+Per-server token from the panel.=面板中对应服务器的令牌。
+Cluster auto-discovery key from the panel.=面板中的集群自动发现密钥。
+Block the panel from opening a web shell or running commands on this host.=阻止面板在本机开启 Web 终端或执行命令。
+Let the agent update itself to new releases.=允许 Agent 自行更新到新版本。
+Seconds between metric reports.=两次指标上报之间的秒数。
+Skip TLS verification (for self-signed panel certificates).=跳过 TLS 校验(用于自签名面板证书)。
+Extra command-line flags passed to the agent.=传给 Agent 的额外命令行参数。
+Pin a version, or use latest.=固定某个版本,或使用 latest。
+Optional GitHub mirror for binary downloads.=可选的 GitHub 镜像,用于下载二进制。

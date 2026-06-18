@@ -1,0 +1,62 @@
+# Komari Agent - Japanese (ja_JP)
+# Format: English source text=translation. One per line; # starts a comment.
+# Keep the left side (English) exactly as-is; translate only the right side.
+
+# Labels
+Enabled=有効化
+Panel endpoint=パネルのアドレス
+Connection mode=接続方式
+Token=トークン
+Auto-discovery key=自動検出キー
+Disable Web SSH/RCE=Web SSH/RCE を無効化
+Auto-update agent=エージェントを自動更新
+Report interval (s)=送信間隔(秒)
+Ignore unsafe cert=安全でない証明書を無視
+Extra args=追加の引数
+Version=バージョン
+GitHub proxy=GitHub プロキシ
+Update agent=エージェントを更新
+Auto-discovery=自動検出
+
+# Buttons
+Save & Apply=保存して適用
+Start=開始
+Stop=停止
+View Log=ログを表示
+Hide Log=ログを隠す
+Check Update=更新を確認
+Close=閉じる
+
+# Status
+Status=状態
+Running=実行中
+Stopped=停止
+Updating...=更新中…
+
+# Switch labels
+On=オン
+Off=オフ
+Advanced view=詳細表示
+Basic view=基本表示
+
+# Messages
+Saved=保存しました
+Done=完了
+Cannot save=保存できません
+Panel endpoint is required when enabled.=有効時はパネルのアドレスが必要です。
+Token is required when enabled.=有効時はトークンが必要です。
+Auto-discovery key is required when enabled.=有効時は自動検出キーが必要です。
+
+# Help text
+Auto-start on boot and restart on crash.=起動時に自動開始し、クラッシュ時に再起動します。
+Address of your Komari panel.=Komari パネルのアドレス。
+Token: register one server with its token. Auto-discovery: register with a cluster key.=トークン:サーバートークンで1台を登録。自動検出:クラスターキーで登録。
+Per-server token from the panel.=パネルのサーバー別トークン。
+Cluster auto-discovery key from the panel.=パネルのクラスター自動検出キー。
+Block the panel from opening a web shell or running commands on this host.=パネルがこのホストで Web シェルを開いたりコマンドを実行するのを禁止します。
+Let the agent update itself to new releases.=エージェントが新しいリリースへ自動更新するのを許可します。
+Seconds between metric reports.=メトリクス送信の間隔(秒)。
+Skip TLS verification (for self-signed panel certificates).=TLS 検証をスキップ(自己署名パネル証明書向け)。
+Extra command-line flags passed to the agent.=エージェントに渡す追加のコマンドライン引数。
+Pin a version, or use latest.=バージョンを固定、または latest を使用。
+Optional GitHub mirror for binary downloads.=バイナリのダウンロードに使う任意の GitHub ミラー。
