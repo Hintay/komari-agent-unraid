@@ -1,0 +1,41 @@
+#!/bin/bash
+# Low-level process control for komari-agent. Does NOT mutate cfg ENABLED.
+# Usage: rc.komari-agent {start|stop|restart|status}
+set -u
+HERE="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+. "$HERE/common.sh"
+
+start() {
+  if km_is_running; then echo "komari-agent already running ($(cat "$KM_PID"))"; return 0; fi
+  [ -x "$KM_BIN" ] || { echo "binary missing: $KM_BIN" >&2; return 1; }
+  [ -f "$KM_CFG" ] || { echo "config missing: $KM_CFG" >&2; return 1; }
+  # shellcheck disable=SC1090
+  . "$KM_CFG"
+  local args
+  args="$(km_agent_args)"
+  mkdir -p "$(dirname "$KM_LOG")"
+  # shellcheck disable=SC2086
+  nohup "$KM_BIN" $args >> "$KM_LOG" 2>&1 &
+  echo $! > "$KM_PID"
+  echo "komari-agent started ($(cat "$KM_PID"))"
+}
+
+stop() {
+  if km_is_running; then kill "$(cat "$KM_PID")" 2>/dev/null; fi
+  rm -f "$KM_PID"
+  echo "komari-agent stopped"
+}
+
+status() {
+  if km_is_running; then echo "running ($(cat "$KM_PID"))"; return 0; fi
+  echo "stopped"; return 1
+}
+
+case "${1:-}" in
+  start)   start ;;
+  stop)    stop ;;
+  restart) stop; start ;;
+  status)  status ;;
+  *) echo "Usage: $0 {start|stop|restart|status}" >&2; exit 2 ;;
+esac
