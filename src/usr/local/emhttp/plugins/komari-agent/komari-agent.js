@@ -134,6 +134,11 @@ $(function(){
   km_mode();
   $('[name="CONN_MODE"]').change(km_mode);
 
+  // show manual update button when auto-update is off
+  function km_auto_update(){ $('dl.km-manual-update').toggle(!$('[name="AUTO_UPDATE"]').is(':checked')); }
+  km_auto_update();
+  $('[name="AUTO_UPDATE"]').change(km_auto_update);
+
   km_place_status();
   km_status_connect();
 });

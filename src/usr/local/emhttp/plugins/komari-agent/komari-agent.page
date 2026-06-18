@@ -42,6 +42,8 @@ function km_h($v){ return htmlspecialchars($v); }
 <dl><dt><?=km_ht('Auto-update agent')?>:</dt><dd class="km-sw"><input type="checkbox" class="km-switch" name="AUTO_UPDATE" value="yes" <?=$ck($cfg['AUTO_UPDATE'])?>></dd></dl>
 <blockquote class="inline_help"><?=km_ht('Let the agent update itself to new releases.')?></blockquote>
 
+<dl class="km-manual-update"><dt><?=km_ht('Update agent')?>:</dt><dd class="km-buttons"><input type="button" value="<?=km_h(km_t('Check Update'))?>" onclick="km_update()"></dd></dl>
+
 <!-- advanced view: whole block flies in/out via $('.km-adv').toggle('slow'), like VM Manager -->
 <div class="km-adv">
 <dl><dt><?=km_ht('Report interval (s)')?>:</dt><dd><input type="text" name="INTERVAL" value="<?=km_h($cfg['INTERVAL'])?>"></dd></dl>
@@ -59,7 +61,6 @@ function km_h($v){ return htmlspecialchars($v); }
 <dl><dt><?=km_ht('GitHub proxy')?>:</dt><dd><input type="text" name="GHPROXY" value="<?=km_h($cfg['GHPROXY'])?>" placeholder="https://ghproxy.com (optional)"></dd></dl>
 <blockquote class="inline_help"><?=km_ht('Optional GitHub mirror for binary downloads.')?></blockquote>
 
-<dl><dt><?=km_ht('Update agent')?>:</dt><dd class="km-buttons"><input type="button" value="<?=km_h(km_t('Check Update'))?>" onclick="km_update()"></dd></dl>
 </div>
 
 <div class="km-actions"><input type="button" value="<?=km_h(km_t('Save & Apply'))?>" onclick="km_save()"><input type="button" id="km_btn_log" value="<?=km_h(km_t('View Log'))?>" onclick="km_log()"></div>
