@@ -1,0 +1,76 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name      "komari-agent">
+<!ENTITY author    "Hintay">
+<!ENTITY version   "@VERSION@">
+<!ENTITY launch    "Utilities/komari-agent">
+<!ENTITY pluginURL "https://github.com/@REPO@/releases/latest/download/&name;.plg">
+<!ENTITY txzURL    "https://github.com/@REPO@/releases/download/&version;/&name;.txz">
+<!ENTITY txzMD5    "@TXZMD5@">
+]>
+<PLUGIN name="&name;" author="&author;" version="&version;" launch="&launch;" pluginURL="&pluginURL;" icon="&name;.png" support="https://github.com/@REPO@" min="6.12.0">
+
+<CHANGES>
+<![CDATA[
+@CHANGELOG@
+
+For older releases, see https://github.com/@REPO@/releases
+]]>
+</CHANGES>
+
+<!-- download the plugin package -->
+<FILE Name="/boot/config/plugins/&name;/&name;.txz">
+<URL>&txzURL;</URL>
+<MD5>&txzMD5;</MD5>
+</FILE>
+
+<!-- install: deploy package, fetch binary, link rc, install cron, start if enabled -->
+<FILE Run="/bin/bash">
+<INLINE>
+<![CDATA[
+PKG="/boot/config/plugins/komari-agent/komari-agent.txz"
+upgradepkg --install-new --reinstall "$PKG"
+
+CFG="/boot/config/plugins/komari-agent/komari-agent.cfg"
+[ -f "$CFG" ] || cp /usr/local/emhttp/plugins/komari-agent/default.cfg "$CFG"
+
+# fetch binary for this host's arch (reads VERSION/GHPROXY from cfg)
+. /usr/local/emhttp/plugins/komari-agent/scripts/common.sh
+VER="$(km_cfg_get "$CFG" VERSION)"
+GHP="$(km_cfg_get "$CFG" GHPROXY)"
+/usr/local/emhttp/plugins/komari-agent/scripts/fetch.sh "${VER:-latest}" "$GHP" || echo "binary fetch deferred (offline?)"
+
+# rc symlink + executables
+ln -sf /usr/local/emhttp/plugins/komari-agent/scripts/rc.komari-agent /etc/rc.d/rc.komari-agent
+chmod +x /usr/local/emhttp/plugins/komari-agent/scripts/*.sh /usr/local/emhttp/plugins/komari-agent/scripts/rc.komari-agent
+
+# cron watchdog every minute
+echo '* * * * * /usr/local/emhttp/plugins/komari-agent/scripts/watchdog.sh &>/dev/null' > /etc/cron.d/komari-agent
+/usr/local/sbin/update_cron 2>/dev/null || true
+
+# start if user had it enabled
+if [ "$(km_cfg_get "$CFG" ENABLED)" = "yes" ]; then
+  /etc/rc.d/rc.komari-agent start
+fi
+echo "komari-agent installed"
+]]>
+</INLINE>
+</FILE>
+
+<!-- remove: stop, drop cron, unlink, purge -->
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+<![CDATA[
+/etc/rc.d/rc.komari-agent stop 2>/dev/null
+rm -f /etc/cron.d/komari-agent
+/usr/local/sbin/update_cron 2>/dev/null || true
+rm -f /etc/rc.d/rc.komari-agent
+removepkg komari-agent 2>/dev/null
+rm -rf /usr/local/emhttp/plugins/komari-agent
+rm -rf /boot/config/plugins/komari-agent
+echo "komari-agent removed"
+]]>
+</INLINE>
+</FILE>
+
+</PLUGIN>

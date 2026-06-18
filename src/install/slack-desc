@@ -1,0 +1,14 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+       |-----handy-ruler------------------------------------------------------|
+komari-agent: komari-agent (Komari monitoring agent for unraid)
+komari-agent:
+komari-agent: Runs the Komari monitoring agent on the unraid host with
+komari-agent: auto-start on boot, persistent config, and crash recovery.
+komari-agent:
+komari-agent: Homepage: https://github.com/komari-monitor/komari-agent
+komari-agent:
+komari-agent:
+komari-agent:
+komari-agent:
+komari-agent:
