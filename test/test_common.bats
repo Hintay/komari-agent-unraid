@@ -78,3 +78,17 @@ setup() {
     run km_agent_args
   [ "$output" = "-e https://p --auto-discovery K --disable-auto-update -u --exclude-nics lo,docker0" ]
 }
+@test "auto-discovery state is linked to flash storage" {
+  tmp="$(mktemp -d)"
+  export KM_FLASH_DIR="$tmp/flash" KM_BIN="$tmp/plugin/bin/komari-agent"
+  mkdir -p "$(dirname "$KM_BIN")"
+  printf '{"uuid":"u","token":"t"}\n' > "$(dirname "$KM_BIN")/auto-discovery.json"
+
+  run km_prepare_auto_discovery_state
+
+  [ "$status" -eq 0 ]
+  [ -L "$(dirname "$KM_BIN")/auto-discovery.json" ]
+  [ "$(readlink "$(dirname "$KM_BIN")/auto-discovery.json")" = "$KM_FLASH_DIR/auto-discovery.json" ]
+  [ "$(cat "$KM_FLASH_DIR/auto-discovery.json")" = '{"uuid":"u","token":"t"}' ]
+  rm -rf "$tmp"
+}

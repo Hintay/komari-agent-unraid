@@ -12,6 +12,9 @@ start() {
   [ -f "$KM_CFG" ] || { echo "config missing: $KM_CFG" >&2; return 1; }
   # shellcheck disable=SC1090
   . "$KM_CFG"
+  if [ "${CONN_MODE:-}" = "discovery" ]; then
+    km_prepare_auto_discovery_state || { echo "failed to prepare auto-discovery state" >&2; return 1; }
+  fi
   local args
   args="$(km_agent_args)"
   mkdir -p "$(dirname "$KM_LOG")"

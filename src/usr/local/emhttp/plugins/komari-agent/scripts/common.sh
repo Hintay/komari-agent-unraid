@@ -9,6 +9,7 @@
 : "${KM_PID:=/var/run/komari-agent.pid}"
 : "${KM_LOG:=/var/log/komari-agent.log}"
 : "${KM_REPO:=komari-monitor/komari-agent}"
+: "${KM_AD_FILE:=auto-discovery.json}"
 
 # Map `uname -m` to komari-agent linux arch suffix. Echoes suffix; returns 1 if unsupported.
 km_detect_arch() {
@@ -83,6 +84,39 @@ km_agent_args() {
   fi
   [ -n "${EXTRA_ARGS:-}" ] && _a="$_a ${EXTRA_ARGS}"
   echo "$_a"
+}
+
+# Ensure the auto-discovery UUID/token file survives Unraid reboots.
+#
+# The upstream agent stores auto-discovery state beside the executable. On
+# Unraid that executable lives under /usr/local/emhttp (RAM), while the plugin's
+# durable state lives under /boot/config/plugins. Link the runtime path the
+# agent expects to the flash-backed copy before it starts.
+km_prepare_auto_discovery_state() {
+  local _bin_dir _runtime _persist
+  _bin_dir="$(dirname "$KM_BIN")"
+  _runtime="$_bin_dir/$KM_AD_FILE"
+  _persist="$KM_FLASH_DIR/$KM_AD_FILE"
+
+  mkdir -p "$KM_FLASH_DIR" "$_bin_dir" || return 1
+
+  if [ -d "$_runtime" ]; then
+    echo "auto-discovery state path is a directory: $_runtime" >&2
+    return 1
+  fi
+
+  if [ -e "$_runtime" ] && [ ! -L "$_runtime" ] && [ ! -e "$_persist" ]; then
+    cp -p "$_runtime" "$_persist" 2>/dev/null || cp "$_runtime" "$_persist" || return 1
+  fi
+
+  if [ -L "$_runtime" ]; then
+    local _target
+    _target="$(readlink "$_runtime" 2>/dev/null || true)"
+    [ "$_target" = "$_persist" ] && return 0
+  fi
+
+  rm -f "$_runtime" || return 1
+  ln -s "$_persist" "$_runtime"
 }
 
 # True (0) if the agent process from KM_PID is alive.

@@ -46,3 +46,15 @@ teardown() {
   run bash "$SCR/rc.komari-agent" start
   [ "$status" -ne 0 ]
 }
+@test "discovery mode links auto-discovery state before start" {
+  cat > "$KM_CFG" <<EOF
+ENABLED="yes"
+ENDPOINT="https://p"
+CONN_MODE="discovery"
+AD_KEY="K"
+DISABLE_WEB_SSH="yes"
+EOF
+  bash "$SCR/rc.komari-agent" start
+  [ -L "$(dirname "$KM_BIN")/auto-discovery.json" ]
+  [ "$(readlink "$(dirname "$KM_BIN")/auto-discovery.json")" = "$KM_FLASH_DIR/auto-discovery.json" ]
+}
